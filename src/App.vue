@@ -8,7 +8,7 @@
       <SentMails></SentMails>
       <TrashMails></TrashMails>
       <FilterComponent></FilterComponent>
-      <ContactsList  @deleteContact="deleteContact" @updateContactFn="updateContactFn" @searchContact="searchContact" @changeSortMethod="changeSortMethod" :contacts="contacts"></ContactsList>
+      <ContactsList  @deleteContact="deleteContact" @updateContactFn="updateContactFn" @sortList="sortList" :contacts="contacts"></ContactsList>
       <FoldersList @deleteFolder="deleteFolder" @updateFolderFn="updateFolderFn" :folders="folders"/>
     </div>
  
@@ -54,29 +54,8 @@
       folders: []
     }
   },
-  created() {
-    this.contacts = [
-        {
-          name: "ali",
-          email: [
-            "ali@mail.com",
-            "fry@ok.com",
-            "hacker@mail.com"
-          ]
-        },
-        {
-          name: "samer",
-          email: [
-            "samer@mail.com"
-          ]
-        },
-        {
-          name: "ahmed",
-          email: [
-            "hacker@mail.com"
-          ]
-        },
-      ],
+  async created() {
+    this.contacts = await this.getContacts()
     this.folders = [
       "parent",
       "safety"
@@ -89,7 +68,7 @@
   methods: {
     async getContacts() {
       
-      const reuslt = await fetch('http://localhost:8080/contacts/')
+      const reuslt = await fetch(`http://localhost:8080/contacts/${this.$root.sender  }`)
 
       return await reuslt.json()
 
@@ -101,60 +80,81 @@
       return await reuslt.json()
 
     },
-    async searchContact(newContact) {
-      
-      const reuslt = await fetch('http://localhost:8080/contact/search', {
-        method: 'post',
-        headers: {
-              'Content-type': "application/json; charset=UTF-8"
-            },
-        body: JSON.stringify(newContact),
-      })
+    async sortList() {
 
-      this.contacts = await reuslt.json()
-
-    },
-    async changeSortMethod() {
-      
-      const reuslt = await fetch('http://localhost:8080/contact/sort')
-
-      this.contacts = await reuslt.json()
-
-      this.contacts.sort()
+      this.contacts = this.contacts.sort((b, a) => b.name.localeCompare(a.name));
 
     },
     async updateContactFn(curContact) {
-      // PUT can be used with POST
-      await fetch('http://localhost:8080/contact/add', {
-        method: 'post',
-        headers: {
-              'Content-type': "application/json; charset=UTF-8"
-            },
-        body: JSON.stringify(curContact),
-      })
-      console.log(curContact)
-
-      const index = this.contacts.findIndex(item => item.name === curContact.name);
-      if (index !== -1) {
-        this.contacts[index] = curContact
-      } else {
-        this.contacts = [ ...this.contacts,  curContact]
+      
+      let newContact = {
+        name: "",
+        email: []
       }
 
+      const index = this.contacts.findIndex(item => item.name === curContact.name);
+      console.log(index)
+      if (index !== -1) {
+        
+        newContact = this.contacts[index]
+        
+        newContact["user"] = this.$root.sender
 
+        this.contacts[index] = curContact
+
+        curContact["user"] = this.$root.sender
+
+        await fetch('http://localhost:8080/contact/edit', {
+          method: 'post',
+          headers: {
+                'Content-type': "application/json; charset=UTF-8"
+              },
+          body: JSON.stringify({
+            newContact,
+            curContact
+          }),
+        })
+
+      } else {
+
+        this.contacts = [ ...this.contacts,  curContact]
+
+        curContact["user"] = this.$root.sender
+
+        newContact["user"] = this.$root.sender
+
+        await fetch('http://localhost:8080/contact/edit', {
+          method: 'post',
+          headers: {
+                'Content-type': "application/json; charset=UTF-8"
+              },
+          body: JSON.stringify({
+            newContact,
+            curContact
+          }),
+        })
+
+      }
 
     },
     async deleteContact(newContact) {
+
+      let contact = {
+        name: newContact["name"],
+        email: newContact["email"],
+        user: this.$root.sender
+      }
+
       await fetch('http://localhost:8080/contact/delete', {
         method: 'delete',
         headers: {
               'Content-type': "application/json; charset=UTF-8"
             },
-        body: JSON.stringify(newContact),
+        body: JSON.stringify(contact),
       })
       console.log(newContact)
-      this.contacts = this.contacts.filter(item => item.name.toLowerCase() !== newContact.name.toLowerCase());
-      console.log(this.contacts)
+      this.contacts = this.contacts.filter(item => item.name !== newContact.name);
+
     },
     async updateFolderFn(newFolder) {
       // PUT can be used with POST

@@ -16,7 +16,7 @@
                 
             </div>
             <div id="sortAddBtn">
-                <p @click="changeSortMethod">Sort <i class="fa-solid fa-arrow-down-a-z" style="color: #183153;" v-show="sortAsc"></i>
+                <p @click="sortList">Sort <i class="fa-solid fa-arrow-down-a-z" style="color: #183153;" v-show="sortAsc"></i>
                     <i class="fa-solid fa-arrow-down-z-a" style="color: #183153;" v-show="!sortAsc"></i>
                 </p>
             
@@ -26,7 +26,7 @@
             <div id="addBtn">
                 
             </div>
-            <div @click="openContact(contact)" id="contactItem" v-for="(contact,name) in contacts" :key="name">
+            <div @click="openContact(contact)" id="contactItem" v-for="(contact,name) in curContacts" :key="name">
                 <span id="contactIcon">
                     <i class="fa-solid fa-user" style="color: #26395a;"></i>
                 </span>
@@ -49,7 +49,8 @@ export default {
             search: '',
             sortAsc: true,
             showContact: false,
-            updateContact: false
+            updateContact: false,
+            curContacts: []
         };
     },
     props: {
@@ -57,6 +58,14 @@ export default {
     },
     compements: {
         ContactInfo,
+    },
+    created() {
+        this.curContacts = this.contacts
+    },
+    watch: {
+        contacts() {
+            this.curContacts = this.contacts
+        }
     },
     methods: {
         iconClk() {
@@ -94,7 +103,10 @@ export default {
                     email: [this.search]
                 }
                 this.search = '';
-                return this.$emit('searchContact', newContact);
+                
+                this.curContacts = this.contacts.filter(item => item.name.indexOf(newContact.name) !== -1);
+
+
             }
 
         },
@@ -117,8 +129,8 @@ export default {
             this.updateContact = false
             return this.$emit('deleteContact', newContact);
         },
-        changeSortMethod() {
-            return this.$emit('changeSortMethod');
+        sortList() {
+            return this.$emit('sortList');
         },
         closeContact(){
             this.showContact = false
