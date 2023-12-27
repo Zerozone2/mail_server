@@ -25,7 +25,7 @@
         <img width="30" height="30" src="https://img.icons8.com/pastel-glyph/64/000000/filtered-file.png"/>
         &nbsp;&nbsp;Filter
       </button>
-      <button @click="showContact" class="list-item btn btn-outline-dark">
+      <button @click="toggleContactList" class="list-item btn btn-outline-dark">
         &nbsp;&nbsp;&nbsp;&nbsp;<img width="30" height="30" src="https://img.icons8.com/comic/100/000000/experimental-user-comic.png"/>
         &nbsp;&nbsp;Contact
       </button>
@@ -43,6 +43,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element2.style.display === "block")
         element2.style.display = "none" ;
@@ -58,6 +60,13 @@ export default {
 
       else if (element6.style.display === "block")
         element6.style.display = "none" ;
+      
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+      
 
       element1.style.display = element1.style.display === "block" ? "none" : "block";
     },
@@ -68,6 +77,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -84,6 +95,12 @@ export default {
       else if (element6.style.display === "block")
         element6.style.display = "none" ;
 
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
       element2.style.display = element2.style.display === "block" ? "none" : "block";
     },
     toggleDraftMails() {
@@ -93,6 +110,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -109,6 +128,12 @@ export default {
       else if (element6.style.display === "block")
         element6.style.display = "none" ;
 
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
 
       element3.style.display = element3.style.display === "block" ? "none" : "block";
     },
@@ -119,6 +144,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -135,6 +162,12 @@ export default {
       else if (element6.style.display === "block")
         element6.style.display = "none" ;
 
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
 
       element4.style.display = element4.style.display === "block" ? "none" : "block";
     },
@@ -145,6 +178,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -161,6 +196,12 @@ export default {
       else if (element6.style.display === "block")
         element6.style.display = "none" ;
 
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
 
         element5.style.display = element5.style.display === "block" ? "none" : "block";
     },
@@ -172,6 +213,8 @@ export default {
       const element4 = document.querySelector('.pageSentMails');
       const element5 = document.querySelector('.pageTrashMails');
       const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none";
@@ -188,7 +231,46 @@ export default {
       else if (element5.style.display === "block")
         element5.style.display = "none";
 
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
       element6.style.display = element6.style.display === "block" ? "none" : "block";
+    },
+    toggleContactList() {
+      const element1 = document.querySelector('.pageReceivedMails');
+      const element2 = document.querySelector('.pageComposeMails');
+      const element3 = document.querySelector('.pageDraftMails');
+      const element4 = document.querySelector('.pageSentMails');
+      const element5 = document.querySelector('.pageTrashMails');
+      const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
+
+      if (element1.style.display === "block")
+        element1.style.display = "none";
+
+      else if (element2.style.display === "block")
+        element2.style.display = "none";
+
+      else if (element3.style.display === "block")
+        element3.style.display = "none";
+
+      else if (element4.style.display === "block")
+        element4.style.display = "none";
+
+      else if (element5.style.display === "block")
+        element5.style.display = "none";
+
+      else if (element6.style.display === "block")
+        element6.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
+      element7.style.display = element7.style.display === "block" ? "none" : "block";
     },
   },
 };
