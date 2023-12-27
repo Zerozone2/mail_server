@@ -29,6 +29,10 @@
         &nbsp;&nbsp;&nbsp;&nbsp;<img width="30" height="30" src="https://img.icons8.com/comic/100/000000/experimental-user-comic.png"/>
         &nbsp;&nbsp;Contact
       </button>
+      <button @click="toggleFolderList" class="list-item btn btn-outline-dark">
+        &nbsp;&nbsp;&nbsp;&nbsp;<img width="30" height="30" src="https://img.icons8.com/?size=256&id=71186&format=png"/>
+        &nbsp;&nbsp;Folder
+      </button>
     </div>
   </div>
 </template>
@@ -45,6 +49,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element2.style.display === "block")
         element2.style.display = "none" ;
@@ -67,6 +73,12 @@ export default {
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
       
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+      
 
       element1.style.display = element1.style.display === "block" ? "none" : "block";
     },
@@ -79,6 +91,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -101,6 +115,12 @@ export default {
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
 
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+
       element2.style.display = element2.style.display === "block" ? "none" : "block";
     },
     toggleDraftMails() {
@@ -112,6 +132,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -134,6 +156,12 @@ export default {
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
 
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+
 
       element3.style.display = element3.style.display === "block" ? "none" : "block";
     },
@@ -146,6 +174,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -168,6 +198,12 @@ export default {
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
 
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+
 
       element4.style.display = element4.style.display === "block" ? "none" : "block";
     },
@@ -180,6 +216,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none" ;
@@ -201,6 +239,12 @@ export default {
 
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
+      
+        else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
 
 
         element5.style.display = element5.style.display === "block" ? "none" : "block";
@@ -215,6 +259,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none";
@@ -236,6 +282,12 @@ export default {
 
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
+      
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
 
       element6.style.display = element6.style.display === "block" ? "none" : "block";
     },
@@ -248,6 +300,8 @@ export default {
       const element6 = document.querySelector('.pageFilterMails');
       const element7 = document.getElementById('contactList');
       const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
 
       if (element1.style.display === "block")
         element1.style.display = "none";
@@ -270,7 +324,54 @@ export default {
       else if (element8.style.display === "block")
         element8.style.display = "none" ;
 
+      else if (element9.style.display === "block")
+        element9.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+
       element7.style.display = element7.style.display === "block" ? "none" : "block";
+    },
+    toggleFolderList() {
+      const element1 = document.querySelector('.pageReceivedMails');
+      const element2 = document.querySelector('.pageComposeMails');
+      const element3 = document.querySelector('.pageDraftMails');
+      const element4 = document.querySelector('.pageSentMails');
+      const element5 = document.querySelector('.pageTrashMails');
+      const element6 = document.querySelector('.pageFilterMails');
+      const element7 = document.getElementById('contactList');
+      const element8 = document.getElementById("contactInfo");
+      const element9 = document.getElementById("folderList");
+      const element10 = document.getElementById("folderInfo");
+
+      if (element1.style.display === "block")
+        element1.style.display = "none";
+
+      else if (element2.style.display === "block")
+        element2.style.display = "none";
+
+      else if (element3.style.display === "block")
+        element3.style.display = "none";
+
+      else if (element4.style.display === "block")
+        element4.style.display = "none";
+
+      else if (element5.style.display === "block")
+        element5.style.display = "none";
+
+      else if (element6.style.display === "block")
+        element6.style.display = "none" ;
+
+      else if (element8.style.display === "block")
+        element8.style.display = "none" ;
+
+      else if (element7.style.display === "block")
+        element7.style.display = "none" ;
+
+      else if (element10.style.display === "block")
+        element10.style.display = "none" ;
+
+      element9.style.display = element9.style.display === "block" ? "none" : "block";
     },
   },
 };

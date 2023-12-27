@@ -9,6 +9,7 @@
       <TrashMails></TrashMails>
       <FilterComponent></FilterComponent>
       <ContactsList  @deleteContact="deleteContact" @updateContactFn="updateContactFn" @searchContact="searchContact" @changeSortMethod="changeSortMethod" :contacts="contacts"></ContactsList>
+      <FoldersList @deleteFolder="deleteFolder" @updateFolderFn="updateFolderFn" :folders="folders"/>
     </div>
  
     <div v-if = '!sender'>
@@ -29,6 +30,7 @@
   import SignUp from "./components/SignUp.vue";
   import SignIn from './components/SignIn.vue';
   import ContactsList from "./components/ContactsList.vue";
+  import FoldersList from "./components/FoldersList.vue";
 
   export default {
     name: 'App',
@@ -44,10 +46,12 @@
       SignUp,
       SignIn,
       ContactsList,
+      FoldersList,
   },
   data() {
     return {
-      contacts: []
+      contacts: [],
+      folders: []
     }
   },
   created() {
@@ -86,6 +90,13 @@
     async getContacts() {
       
       const reuslt = await fetch('http://localhost:8080/contacts/')
+
+      return await reuslt.json()
+
+    },
+    async getFolders() {
+      
+      const reuslt = await fetch('http://localhost:8080/folders/')
 
       return await reuslt.json()
 
@@ -145,6 +156,29 @@
       this.contacts = this.contacts.filter(item => item.name.toLowerCase() !== newContact.name.toLowerCase());
       console.log(this.contacts)
     },
+    async updateFolderFn(newFolder) {
+      // PUT can be used with POST
+      await fetch('http://localhost:8080/folder/add', {
+        method: 'post',
+        headers: {
+              'Content-type': "application/json; charset=UTF-8"
+            },
+        body: JSON.stringify(newFolder),
+      })
+      console.log(newFolder)
+      this.folders = [ ...this.folders,  newFolder]
+    },
+    async deleteFolder(newFolder) {
+      await fetch('http://localhost:8080/folder/delete', {
+        method: 'delete',
+        headers: {
+              'Content-type': "application/json; charset=UTF-8"
+            },
+        body: JSON.stringify(newFolder),
+      })
+
+      this.folders = this.folders.filter(item => item != newFolder)
+    }
   }
 }
 </script>

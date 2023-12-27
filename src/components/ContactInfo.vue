@@ -128,7 +128,7 @@ export default {
 .contactLayout {
     top: 15%;
       width: 70%;
-      height: 80%;
+      height: 75%;
       left: 300px;
       position: absolute;
       border: 3px solid black;
