@@ -108,6 +108,15 @@
               <div class="email-body">
                 <strong>Body:</strong> {{ email.body }}
               </div>
+              <div class="emai-attachment" >
+              <select class="fileDropdown" @change="changeCurrentFile">
+                <option value="">None</option>
+                <option :value="attachment" v-for="(attachment,index) in email.attachments" :key="index">{{ index+1 }}</option>
+
+                </select>
+                <button class="libraryCrlBtn" @click="showFileFn(attachment)" v-if="email.attachments.length != 0">Show File</button>
+
+            </div>
               <div class="email-checkbox-wrapper">
                 <input type="checkbox" v-model="email.isSelected" class="email-checkbox">
               </div>
@@ -140,6 +149,7 @@ export default {
       itemsPerPage: 4,
       currentPageDefault: 1,
       currentPagePriority: 1,
+      currentFile: ""
     };
   },
   computed: {
@@ -169,6 +179,30 @@ export default {
 
   },
   methods: {
+    changeCurrentFile(event){
+          const selectedFile = event.target.value;
+
+          if (selectedFile) {
+            this.currentFile = selectedFile
+            // console.log(selectedFile)
+          } 
+    },
+    showFileFn() {
+      let dropdowns = document.querySelectorAll(".fileDropdown")
+
+      if( this.currentFile ) {
+        const link = document.createElement('a');
+        link.href = this.currentFile;
+        // console.log(this.currentFile)
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        this.currentFile = ""
+      }
+      
+      dropdowns.forEach(item => item.selectedIndex = 0)
+
+    },
     updateSearchBy(value) {
       this.searchByText = value;
     },
@@ -348,7 +382,35 @@ export default {
 </script>
 
 <style scoped>
-  .pageReceivedMails {
+.libraryCrlBtn {
+  border: none;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.fileDropdown{
+  border: none;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+
+}
+
+.fileDropdown:hover {
+  background-color: lightgray;
+}
+
+
+.libraryCrlBtn:hover {
+  background-color: lightgray;
+}
+
+.pageReceivedMails {
     top: 15%;
     display: none;
     width: 70%;
