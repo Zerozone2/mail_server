@@ -128,7 +128,7 @@ export default {
 .contactLayout {
     top: 15%;
       width: 70%;
-      height: 75%;
+      height: 80%;
       left: 300px;
       position: absolute;
       border: 3px solid black;
@@ -199,6 +199,5 @@ export default {
     word-wrap: break-word;
     max-width: 50%;
 }
-
 
 </style>

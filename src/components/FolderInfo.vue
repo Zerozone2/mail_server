@@ -1,6 +1,4 @@
 <template>
-
-    <!-- Div for showing the Folder -->
     <div class="folderLayout" v-show="showFolder">
 
         <span id="icon3">

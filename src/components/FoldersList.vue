@@ -1,9 +1,4 @@
 <template>
-
-    <!-- <div @click="iconClk" id="foldersIcon">
-        <i class="fa-solid fa-folder-open" style="color: #183153;"></i>
-    </div> -->
-
     <div id="folderInfo">
         <FolderInfo @updateFolderFn="updateFolderFn" @editFolder="editFolder" @closeFolder="closeFolder" @deleteFolder="deleteFolder" :mails="mails" :updateFolder="updateFolder" :showFolder="showFolder" :curFolder="curFolder"></FolderInfo>
     </div>

@@ -50,7 +50,6 @@
       </div>
     </nav>
 
-    <!-- Form for selected email -->
     <form v-if="selectedEmail" class="was-validated" id = 'draft' @submit.prevent="onSubmit">
       <div class="mb-3">
         <label for="validationServer01" class="form-label">To</label>
@@ -88,10 +87,9 @@
       </div>
     </form>
 
-    <!-- List of draft emails -->
     <div v-if= "!selectedEmail">
       <ul class="draft-items">
-        <li v-for="email in draftList" :key="email.id" @click="selectEmail(email, $event)">
+        <li v-for="(email) in paginatedDraftList" :key="email.id" @click="selectEmail(email, $event)">
           <div class="email-item">
             <div class="email-header clearfix">
               <div class="email-sender">
@@ -114,6 +112,10 @@
         </li>
       </ul>
     </div>
+    <div class="pagination">
+      <button class = "btn btn-outline-dark" @click="prevPage" :disabled="currentPage === 1">Previous</button>
+      <button class = "btn btn-outline-dark" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+    </div>
   </div>
 </template>
 
@@ -129,17 +131,33 @@ export default {
       searchInput: '',
       draftList: [],
       selectedEmail: null,
+      itemsPerPage: 4,
+      currentPage: 1,
     };
   },
+
   computed: {
     isDeleteButtonEnabled() {
       return this.draftList.some(email => email.isSelected);
     },
+
+    totalPages() {
+      return Math.ceil(this.draftList.length / this.itemsPerPage);
+    },
+
+    paginatedDraftList() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.draftList.slice(start, end);
+    },
+
   },
+
   methods: {
     updateSearchBy(value) {
       this.searchByText = value;
     },
+
     updateSortBy(value) {
       this.sortByText = value;
       if (value === "Date")
@@ -151,14 +169,29 @@ export default {
       else if (value === "Body")
         this.draftList.sort((a, b) => a.body.localeCompare(b.body));
       else if (value === "Importance")
-        this.draftList.sort((a, b) => a.importance.localeCompare(b.importance));
+        this.draftList.sort((a, b) => String(a.importance).localeCompare(String(b.importance)));
     },
+
     updateFilterBy(value) {
       this.filterByText = value;
     },
+
     updateType(value) {
       this.typeText = value;
     },
+
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+
     async search() {
       const value = this.searchInput;
       const by = this.searchByText.toLocaleLowerCase();
@@ -168,6 +201,8 @@ export default {
         type: "draft",
         value: value,
         by: by,
+        receivers: [],
+        attachment: [],
       };
       fetch('http://localhost:8080/search', {
         method: 'POST',
@@ -184,183 +219,200 @@ export default {
           this.draftList = Array.from(data);
         })
         .catch(error => console.error('Error:', error.message));
-    },
-    async filter() {
-      const value = this.filterInput;
-      const by = this.filterByText.toLocaleLowerCase();
+      },
 
-      const MailDTO = {
-        sender: this.$root.sender,
-        type: 'draft',
-        value: value,
-        by: by,
-      };
+      async filter() {
+        const value = this.filterInput;
+        const by = this.filterByText.toLocaleLowerCase();
 
-      fetch('http://localhost:8080/filter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(MailDTO),
-      })
-
-    },
-    reload() {
-      this.selectedEmail = null ;
-      const MailDTO = {
-        sender: this.$root.sender,
-        type: "draft",
-      };
-
-      fetch('http://localhost:8080/showMails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(MailDTO),
-      })
-        .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`))
-        .then(data => this.draftList = Array.from(data))
-        .catch(error => console.error('Error:', error.message));
-    },
-    async deleteSelectedItems() {
-      const selectedDraftItems = this.draftList.filter(email => email.isSelected);
-      const selectedItems = [...selectedDraftItems];
-
-      for (const selectedItem of selectedItems) {
         const MailDTO = {
-          id: selectedItem.id,
-          date: selectedItem.date,
-          sender: selectedItem.sender,
-          receivers: selectedItem.receivers,
-          importance: selectedItem.importance,
-          subject: selectedItem.subject,
-          body: selectedItem.body,
+          sender: this.$root.sender,
+          type: 'draft',
+          value: value,
+          by: by,
+          receivers: [],
+          attachment: [],
         };
 
-        try {
-          const response = await fetch('http://localhost:8080/deleteDraft', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(MailDTO),
-          });
+        fetch('http://localhost:8080/filter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(MailDTO),
+        })
 
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
+      },
+    
+      reload() {
+        this.selectedEmail = null ;
+        const MailDTO = {
+          sender: this.$root.sender,
+          type: "draft",
+          receivers: [],
+          attachment: [],
+        };
+
+        fetch('http://localhost:8080/showMails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(MailDTO),
+        })
+          .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`))
+          .then(data => this.draftList = Array.from(data))
+          .catch(error => console.error('Error:', error.message));
+      },
+
+      async deleteSelectedItems() {
+        const selectedDraftItems = this.draftList.filter(email => email.isSelected);
+        const selectedItems = [...selectedDraftItems];
+
+        for (const selectedItem of selectedItems) {
+
+          const MailDTO = {
+            id: selectedItem.id,
+            date: selectedItem.date,
+            sender: selectedItem.sender,
+            receivers: selectedItem.receivers,
+            importance: selectedItem.importance,
+            subject: selectedItem.subject,
+            body: selectedItem.body,
+            attachment: selectedItems.attachment ? selectedItems.attachment : []
+          };
+
+          try {
+            const response = await fetch('http://localhost:8080/deleteDraft', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(MailDTO),
+            });
+
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+          } catch (error) {
+            console.error('Error during fetch:', error);
           }
-        } catch (error) {
-          console.error('Error during fetch:', error);
         }
-      }
 
-      this.draftList = this.draftList.filter(email => !email.isSelected);
+        this.draftList = this.draftList.filter(email => !email.isSelected);
 
-    },
-    selectEmail(email, event) {
-      // Check if the click target is the checkbox
-      const isCheckbox = event.target.classList.contains('email-checkbox');
-      
-      if (!isCheckbox) {
-        this.selectedEmail = { ...email };
-      }
-      // Prevent the event from propagating to the checkbox
-      event.stopPropagation();
-    },
+      },
+
+      selectEmail(email, event) {
+        const isCheckbox = event.target.classList.contains('email-checkbox');
+        
+        if (!isCheckbox) {
+          this.selectedEmail = { ...email };
+        }
+        event.stopPropagation();
+      },
 
 
-    onSubmit() {
-        const to = this.selectedEmail.sender; // Use selectedEmail data
-        const subject = this.selectedEmail.subject; // Use selectedEmail data
-        const priority = this.selectedEmail.importance; // Use selectedEmail data
-        const message = this.selectedEmail.body; // Use selectedEmail data
+      onSubmit() {
+        const to = this.selectedEmail.sender;
+        const subject = this.selectedEmail.subject;
+        const priority = this.selectedEmail.importance;
+        const message = this.selectedEmail.body;
         const files = this.selectedEmail.files;
 
         const attachment = [];
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const filePath = `D:\\attachment${file.name}`;
-          attachment.push(filePath);
+        if (files != null ){
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const filePath = URL.createObjectURL(file);
+            attachment.push(filePath);
+          }
         }
-        
+
+          
         const receivers = to.split(' ');
 
         const MailDTO = {
-        type: "sent",
-        id : ++this.id,  
-        sender: this.$root.sender,
-        receivers: receivers,
-        importance: priority,
-        subject: subject,
-        body: message,
-        attachment: attachment,
-      };
+          type: "sent",
+          id : ++this.id,  
+          sender: this.$root.sender,
+          receivers: receivers,
+          importance: priority,
+          subject: subject,
+          body: message,
+          attachment: attachment ? attachment : [],
+        };
 
-      fetch('http://localhost:8080/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(MailDTO),
-      })
+        fetch('http://localhost:8080/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(MailDTO),
+        })
       },
-      
+        
       async edit() {
-  try {
-    const id = this.selectedEmail.id;
+        try {
+          const id = this.selectedEmail.id;
 
-    // Delete the selected draft
-    const deleteMailDTO = {
-      id: id,
-      date: this.selectedEmail.date,
-      sender: this.selectedEmail.sender,
-      receivers: this.selectedEmail.receivers,
-      importance: this.selectedEmail.importance,
-      subject: this.selectedEmail.subject,
-      body: this.selectedEmail.body,
-      attachment:this.selectedEmail.attachment,
-    };
+          // Delete the selected draft
+          const deleteMailDTO = {
+            id: id,
+            date: this.selectedEmail.date,
+            sender: this.selectedEmail.sender,
+            receivers: this.selectedEmail.receivers,
+            importance: this.selectedEmail.importance,
+            subject: this.selectedEmail.subject,
+            body: this.selectedEmail.body,
+            attachment:this.selectedEmail.attachment ? this.selectedEmail.attachment : [],
+          };
 
-    const deleteResponse = await fetch('http://localhost:8080/deleteDraft', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(deleteMailDTO),
-    });
+          const deleteResponse = await fetch('http://localhost:8080/deleteDraft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(deleteMailDTO),
+          });
 
-    if (!deleteResponse.ok) {
-      throw new Error('Network response was not ok');
-    }
+          if (!deleteResponse.ok) {
+            throw new Error('Network response was not ok');
+          }
 
-    // Create a new draft based on the edited content
-    const to = this.selectedEmail.sender; // Use selectedEmail data
-    const subject = this.selectedEmail.subject; // Use selectedEmail data
-    const priority = this.selectedEmail.importance; // Use selectedEmail data
-    const message = this.selectedEmail.body; // Use selectedEmail data
-    const attachment = this.selectedEmail.attachment
-    const receivers = to.split(' ');
+          const to = document.getElementById('validationServer01').value;
+          const subject = document.getElementById('validationServer03').value;
+          const priority = document.getElementById('validationCustom04').value;
+          const message = document.getElementById('validationTextarea').value;
+          const files = document.getElementById('formFileMultiple').files;
+          const attachment = [];
 
-    const newDraft = {
-      type: "draft",
-      id: id,
-      sender: this.$root.sender,
-      receivers: receivers,
-      importance: priority,
-      subject: subject,
-      body: message,
-      attachment: attachment
-    };
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const filePath = URL.createObjectURL(file);
+            attachment.push(filePath);
+          }
+          const receivers = to.split(' ');
 
-    // Save the new draft
-    const createDraftResponse = await fetch('http://localhost:8080/draft', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newDraft),
-    });
+          const newDraft = {
+            type: "draft",
+            id: id,
+            sender: this.$root.sender,
+            receivers: receivers,
+            importance: priority,
+            subject: subject,
+            body: message,
+            attachment: attachment ? attachment : []
+          };
 
-    if (!createDraftResponse.ok) {
-      throw new Error('Network response was not ok');
-    }
+          const createDraftResponse = await fetch('http://localhost:8080/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newDraft),
+          });
 
-    // Update the draftList
-    this.draftList = this.draftList.filter(email => email.id !== id);
-  } catch (error) {
-    console.error('Error during edit:', error);
-  }
-},
+          if (!createDraftResponse.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          this.draftList = this.draftList.filter(email => email.id !== id);
+        
+        }
+        catch (error) {
+          console.error('Error during edit:', error);
+        }
+    },
 
   },
 };
@@ -368,19 +420,19 @@ export default {
     
 <style scoped>
   
-      .pageDraftMails {
-          top: 15%;
-          display: none;
-          width: 70%;
-          height: 80%;
-          left: 300px;
-          position: absolute;
-          border: 3px solid black;
-          border-radius: 30px;
-          box-shadow: 10px 10px 10px 10px;
-      }
-      
-      h3{
+  .pageDraftMails {
+    top: 15%;
+    display: none;
+    width: 70%;
+    height: 80%;
+    left: 300px;
+    position: absolute;
+    border: 3px solid black;
+    border-radius: 30px;
+    box-shadow: 10px 10px 10px 10px;
+  }
+  
+  h3{
     color: rgb(0, 0, 0);
     margin-left: 110px;
     margin-right: 30px;
@@ -388,89 +440,89 @@ export default {
   }
   
   .navbar {
-      border: 1px solid;
-      border-radius: 30px 30px 0 0 ;
-      border-bottom: 2px solid rgb(37, 37, 37);
-      height: 100px;
+    border: 1px solid;
+    border-radius: 30px 30px 0 0 ;
+    border-bottom: 2px solid rgb(37, 37, 37);
+    height: 100px;
   }
   
-    #searchBy {
-        margin-left: 5px;
-        margin-right: 10px;
-    }
-
-    #filterBy{
+  #searchBy {
       margin-left: 5px;
-    }
-    
-    #sortBy {
-        margin-left: 100px;
-    }
-    
-    #delete {
-        margin-left: 20px;
-    }
+      margin-right: 10px;
+  }
 
-    #reload{
-      margin-left: 20px;
-    }
-
-    .email-sender {
-      float: left;
-    }
-
-    .email-date {
-      float: right;
-      text-align: right;
-    }
-
-    .clearfix::after {
-      content: "";
-      clear: both;
-      display: block;
-    }
-
-    .draft-items {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .email-item {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 10px;
-      width: 95%;
-      margin-left: 25px;
-    }
-
-    .email-sender,
-    .email-date {
-      font-weight: bold;
-    }
-
-    .email-subject,
-    .email-body {
-      margin-top: 5px;
-    }
-
-    .email-subject {
-      margin-top: 10px;
-      font-size: 1.1em;
-    }
-
-    .email-item {
-      position: relative;
-    }
-
-    .email-checkbox-wrapper {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      margin: 5px;
-    }
+  #filterBy{
+    margin-left: 5px;
+  }
   
-    #draft {
+  #sortBy {
+      margin-left: 100px;
+  }
+  
+  #delete {
+      margin-left: 20px;
+  }
+
+  #reload{
+    margin-left: 20px;
+  }
+
+  .email-sender {
+    float: left;
+  }
+
+  .email-date {
+    float: right;
+    text-align: right;
+  }
+
+  .clearfix::after {
+    content: "";
+    clear: both;
+    display: block;
+  }
+
+  .draft-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .email-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    width: 95%;
+    margin-left: 25px;
+  }
+
+  .email-sender,
+  .email-date {
+    font-weight: bold;
+  }
+
+  .email-subject,
+  .email-body {
+    margin-top: 5px;
+  }
+
+  .email-subject {
+    margin-top: 10px;
+    font-size: 1.1em;
+  }
+
+  .email-item {
+    position: relative;
+  }
+
+  .email-checkbox-wrapper {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 5px;
+  }
+
+  #draft {
     display: flex;
     margin-left: 25%;
     margin-top: 20px;
@@ -526,6 +578,22 @@ export default {
   #priority {
     text-align: left;
     margin-left: -50px;
+  }
+
+  .pagination {
+    position: fixed;
+    top: 87% ;
+    left: 47% ;
+  }
+
+  .pagination button {
+    padding: 8px 12px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+
+  .pagination button:disabled {
+    cursor: not-allowed;
   }
   
       

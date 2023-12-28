@@ -2,7 +2,7 @@
   <div class = "sign-up">
     <form class="input-box">
       <div style="text-align: right; margin-bottom: 10px;">
-        <button class = "btn btn-outline-dark" @click = "setSigninMode">Sign up</button>
+        <button class = "btn btn-outline-dark" @click = "setSigninMode">Sign In</button>
       </div>
       <div style="text-align: center;">
         <img class="logo" src="../assets/icons8-gmail-94.png" alt="Logo">
@@ -70,24 +70,21 @@ export default {
       }
 
       // Axios POST request
-      axios.post("http://localhost:8081/users", {
-        userName: this.name,
+      axios.post("http://localhost:8080/signup", {
+        username: this.name,
         email: this.email.toLowerCase(),
         password: this.password,
+        receivers: [],
+        attachment: [], 
       })
       .then(response => {
         const result = response.data;
         if (result === 0) {
           alert('Email address already exists');
         } else {
-          // Route each user to their home page or another appropriate route
-          this.$router.push(`/home/${result.userId}`);
+          alert('email created successfully');
         }
       })
-      .catch(error => {
-        console.error('Error during sign up:', error);
-        alert('An error occurred during sign up. Please try again.');
-      });
     },
     validateField(fieldName) {
       this.fieldTouched[fieldName] = true;

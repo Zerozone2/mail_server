@@ -32,80 +32,76 @@
       </div>
       <div class="mb-3">
         <button type="submit" class="btn btn-outline-success">Send Mail</button>
-        <button class="btn btn-outline-primary" @click.prevent = "draft">Draft</button>
+        <button class="btn btn-outline-primary" @click.prevent="draft">Draft</button>
       </div>
     </form>
   </div>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        id : 0,
-      };
-    },
-    methods: {
-    
-      onSubmit() {
-        const to = document.getElementById('validationServer01').value;
-        const subject = document.getElementById('validationServer02').value;
-        const priority = document.getElementById('validationCustom04').value;
-        const message = document.getElementById('validationTextarea').value;
-        const files = document.getElementById('formFileMultiple').files;
+export default {
+  data() {
+    return {
+      id: 0,
+    };
+  },
+  methods: {
+    onSubmit() {
+      const to = document.getElementById('validationServer01').value;
+      const subject = document.getElementById('validationServer02').value;
+      const priority = document.getElementById('validationCustom04').value;
+      const message = document.getElementById('validationTextarea').value;
+      const files = document.getElementById('formFileMultiple').files;
 
-        const attachment = [];
+      const attachment = [];
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const filePath =  URL.createObjectURL(file);
-          attachment.push(filePath);
-        }
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const filePath = URL.createObjectURL(file);
+        console.log(filePath)
+        attachment.push(filePath);
+      }
 
-        console.log('Attachment array:', attachment);
+      const receivers = to.split(' ');
 
-        const receivers = to.split(' ');
-
-        const MailDTO = {
-        type: "sent",
-        id : ++this.id,  
+      const MailDTO = {
+        type: 'sent',
+        id: ++this.id,
         sender: this.$root.sender,
         receivers: receivers,
         importance: priority,
         subject: subject,
         body: message,
-        attachment: attachment,
+        attachment: attachment ? attachment : [],
       };
 
       fetch('http://localhost:8080/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(MailDTO),
-      })
-      },
-      
-      draft() {
-        const to = document.getElementById('validationServer01').value;
-        const subject = document.getElementById('validationServer02').value;
-        const priority = document.getElementById('validationCustom04').value;
-        const message = document.getElementById('validationTextarea').value;
-        const files = document.getElementById('formFileMultiple').files;
+      });
+    },
 
-        const attachment = [];
+    draft() {
+      const to = document.getElementById('validationServer01').value;
+      const subject = document.getElementById('validationServer02').value;
+      const priority = document.getElementById('validationCustom04').value;
+      const message = document.getElementById('validationTextarea').value;
+      const files = document.getElementById('formFileMultiple').files;
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const filePath = URL.createObjectURL(file);
-          attachment.push(filePath);
-        }
+      const attachment = [];
 
-        console.log('Attachment array:', attachment);
- 
-        const receivers = to.split(' ');
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const filePath = URL.createObjectURL(file);
+        attachment.push(filePath);
+      }
 
-        const MailDTO = {
-        type: "draft",
-        id : ++this.id,  
+      const receivers = to.split(' ');
+
+      const MailDTO = {
+        type: 'draft',
+        id: ++this.id,
         sender: this.$root.sender,
         receivers: receivers,
         importance: priority,
@@ -118,90 +114,89 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(MailDTO),
-      })
-      },
-    
+      });
     },
-  };
+  },
+};
 </script>
 
 <style scoped>
-  .pageComposeMails {
-    top: 15%;
-    display: none;
-    width: 70%;
-    height: 80%;
-    left: 300px;
-    position: absolute;
-    border: 3px solid black;
-    border-radius: 30px;
-    box-shadow: 10px 10px 10px 10px;
-  }
+.pageComposeMails {
+  top: 15%;
+  display: none;
+  width: 70%;
+  height: 80%;
+  left: 300px;
+  position: absolute;
+  border: 3px solid black;
+  border-radius: 30px;
+  box-shadow: 10px 10px 10px 10px;
+}
 
-  h1 {
-    color: rgb(0, 0, 0);
-    font-family: 'Grand Hotel';
-    border: 2px solid;
-    border-bottom: 4px solid;
-    border-radius: 20px 20px 0 0;
-    padding: 30px;
-  }
+h1 {
+  color: rgb(0, 0, 0);
+  font-family: 'Grand Hotel';
+  border: 2px solid;
+  border-bottom: 4px solid;
+  border-radius: 20px 20px 0 0;
+  padding: 30px;
+}
 
-  form {
-    display: flex;
-    margin-left: 25%;
-    margin-top: 20px;
-    width: 50%;
-    height: 75%;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-    border-radius: 20px;
-    border: 2px solid black;
-    box-shadow: 5px 5px 5px rgb(0, 0, 0);
-  }
+form {
+  display: flex;
+  margin-left: 25%;
+  margin-top: 20px;
+  width: 50%;
+  height: 75%;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  border-radius: 20px;
+  border: 2px solid black;
+  box-shadow: 5px 5px 5px rgb(0, 0, 0);
+}
 
-  .form-label {
-    text-align: left;
-  }
+.form-label {
+  text-align: left;
+}
 
-  .form-label {
-    display: block;
-    margin-bottom: 5px;
-    margin-left: 30px;
-  }
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  margin-left: 30px;
+}
 
-  .form-control {
-    padding-left: 15px;
-  }
+.form-control {
+  padding-left: 15px;
+}
 
-  .form-control {
-    margin-left: 30px;
-  }
+.form-control {
+  margin-left: 30px;
+}
 
-  .form-label {
-    font-size: 16px;
-    color: rgb(74, 74, 93);
-  }
+.form-label {
+  font-size: 16px;
+  color: rgb(74, 74, 93);
+}
 
-  #formFileMultiple {
-    margin-left: 80px;
-  }
+#formFileMultiple {
+  margin-left: 80px;
+}
 
-  .btn {
-    margin: 2px;
-  }
+.btn {
+  margin: 2px;
+}
 
-  .attachment-container {
-    width: 60%;
-  }
+.attachment-container {
+  width: 60%;
+}
 
-  .attachment-label {
-    margin-left: -50px;
-  }
+.attachment-label {
+  margin-left: -50px;
+}
 
-  #priority {
-    text-align: left;
-    margin-left: -50px;
-  }
+#priority {
+  text-align: left;
+  margin-left: -50px;
+}
 </style>

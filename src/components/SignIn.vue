@@ -2,7 +2,7 @@
   <div class = "sign-in">
     <form class="input-box">
       <div style="text-align: right; margin-bottom: 10px;">
-          <button class = "btn btn-outline-dark" @click = "setSignUpMode">Sign in</button>
+          <button class = "btn btn-outline-dark" @click = "setSignUpMode">Sign Up</button>
         </div>
       <div style="text-align: center;">
         <img class="logo" src="../assets/icons8-gmail-94.png" alt="Logo">
@@ -34,26 +34,28 @@ export default {
   },
   methods: {
     signIn() {
-      // Validation and processing moved to separate functions
       if (this.validateForm()) {
-        // Use axios.post for more secure transmission of sensitive information
-        axios.post("http://localhost:8081/users/login", {
+        axios.post("http://localhost:8080/signin", {
           email: this.email,
           password: this.password,
+          receivers: [],
+          attachment: [], 
         })
         .then(response => {
           const result = response.data;
-          console.log(result);
-          if (result === -1) {
+
+          if (result === "-1") {
+            alert('wrong password');
+          } 
+          else if (result === 0) {
             alert('E-mail not found');
-          } else if (result === 0) {
-            alert('Wrong Password');
-          } else {
-            // Route each user to their home page based on the user type or ID
-            this.$router.push(`/home/${result.userId}`);
+          } 
+          else {
+            this.$root.sender = result ;
           }
+
         })
-        .catch(error => alert(error));
+        
       }
     },
     validateForm() {

@@ -58,55 +58,67 @@
       </div>
     </nav>
     <div v-show="Default">
-      <ul class="default-items">
-        <li v-for="email in defaultList" :key="email.id">
-          <div class="email-item">
-            <div class="email-header clearfix">
-              <div class="email-sender">
-                <strong>Sender:</strong> {{ email.sender }}
+      <div>
+        <ul class="default-items">
+          <li v-for="email in paginatedDefaultList" :key="email.id">
+            <div class="email-item">
+              <div class="email-header clearfix">
+                <div class="email-sender">
+                  <strong>Sender:</strong> {{ email.sender }}
+                </div>
+                <div class="email-date">
+                  <strong>Date:</strong> {{ email.date }}
+                </div>
               </div>
-              <div class="email-date">
-                <strong>Date:</strong> {{ email.date }}
+              <div class="email-subject">
+                <strong>Subject:</strong> {{ email.subject }}
+              </div>
+              <div class="email-body">
+                <strong>Body:</strong> {{ email.body }}
+              </div>
+              <div class="email-checkbox-wrapper">
+                <input type="checkbox" v-model="email.isSelected" class="email-checkbox">
               </div>
             </div>
-            <div class="email-subject">
-              <strong>Subject:</strong> {{ email.subject }}
-            </div>
-            <div class="email-body">
-              <strong>Body:</strong> {{ email.body }}
-            </div>
-            <div class="email-checkbox-wrapper">
-              <input type="checkbox" v-model="email.isSelected" class="email-checkbox">
-            </div>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="pagination">
+        <button class = "btn btn-outline-dark" @click="prevPage('Default')" :disabled="currentPageDefault === 1">Previous</button>
+        <button class = "btn btn-outline-dark" @click="nextPage('Default')" :disabled="currentPageDefault === totalPagesDefault">Next</button>
+      </div>
     </div>
 
     <div v-show="Priority">
-      <ul class="default-items">
-        <li v-for="email in priorityList" :key="email.id">
-          <div class="email-item">
-            <div class="email-header clearfix">
-              <div class="email-sender">
-                <strong>Sender:</strong> {{ email.sender }}
+      <div>
+        <ul class="default-items">
+          <li v-for="email in paginatedPriorityList" :key="email.id">
+            <div class="email-item">
+              <div class="email-header clearfix">
+                <div class="email-sender">
+                  <strong>Sender:</strong> {{ email.sender }}
+                </div>
+                <div class="email-date">
+                  <strong>Date:</strong> {{ email.date }}
+                </div>
               </div>
-              <div class="email-date">
-                <strong>Date:</strong> {{ email.date }}
+              <div class="email-subject">
+                <strong>Subject:</strong> {{ email.subject }}
+              </div>
+              <div class="email-body">
+                <strong>Body:</strong> {{ email.body }}
+              </div>
+              <div class="email-checkbox-wrapper">
+                <input type="checkbox" v-model="email.isSelected" class="email-checkbox">
               </div>
             </div>
-            <div class="email-subject">
-              <strong>Subject:</strong> {{ email.subject }}
-            </div>
-            <div class="email-body">
-              <strong>Body:</strong> {{ email.body }}
-            </div>
-            <div class="email-checkbox-wrapper">
-              <input type="checkbox" v-model="email.isSelected" class="email-checkbox">
-            </div>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-outline-dark" @click="prevPage('Priority')" :disabled="currentPagePriority === 1">Previous</button>
+        <button class="btn btn-outline-dark" @click="nextPage('Priority')" :disabled="currentPagePriority === totalPagesPriority">Next</button>
+      </div>
     </div>
   </div>
 </template>
@@ -125,15 +137,36 @@ export default {
       priorityList: [],
       searchInput: '',
       filterInput: '',
+      itemsPerPage: 4,
+      currentPageDefault: 1,
+      currentPagePriority: 1,
     };
   },
   computed: {
     isDeleteButtonEnabled() {
       return this.defaultList.some(email => email.isSelected);
     },
+
     isPriorityDeleteButtonEnabled() {
       return this.priorityList.some(email => email.isSelected);
     },
+
+    paginatedDefaultList() {
+      return this.paginateList(this.defaultList, this.currentPageDefault);
+    },
+
+    paginatedPriorityList() {
+      return this.paginateList(this.priorityList, this.currentPagePriority);
+    },
+
+    totalPagesDefault() {
+      return Math.ceil(this.defaultList.length / this.itemsPerPage);
+    },
+
+    totalPagesPriority() {
+      return Math.ceil(this.priorityList.length / this.itemsPerPage);
+    },
+
   },
   methods: {
     updateSearchBy(value) {
@@ -143,13 +176,14 @@ export default {
     async search() {
       const value = this.searchInput;
       const by    = this.searchByText.toLocaleLowerCase();
-      let type    = this.typeText === 'Default' ? 'default' : 'priority';
-
+      
       const MailDTO = {
         sender: this.$root.sender,
-        type: type,
+        type: "default",
         value: value,
         by: by,
+        receivers: [],
+        attachment: [],
       };
 
       fetch('http://localhost:8080/search', {
@@ -169,6 +203,7 @@ export default {
           } else {
             this.priorityList = Array.from(data);
           }
+
         })
         .catch(error => console.error('Error:', error.message));
     },
@@ -196,9 +231,24 @@ export default {
         this.priorityList.sort((a, b) => a.body.localeCompare(b.body));
 
       else if (value === "Importance" && this.typeText === 'Default')
-        this.defaultList.sort((a, b) => a.importance.localeCompare(b.importance));
+        this.defaultList.sort((a, b) => String(a.importance).localeCompare(String(b.importance)));
       else if (value === "Importance" && this.typeText === 'Priority')
-        this.priorityList.sort((a, b) => a.importance.localeCompare(b.importance));
+        this.priorityList.sort((a, b) => String(a.importance).localeCompare(String(b.importance)));
+    },
+
+    prevPage(listType) {
+      this['currentPage' + listType] = Math.max(this['currentPage' + listType] - 1, 1);
+    },
+
+    nextPage(listType) {
+      const totalPages = this['totalPages' + listType];
+      this['currentPage' + listType] = Math.min(this['currentPage' + listType] + 1, totalPages);
+    },
+
+    paginateList(list, currentPage) {
+      const start = (currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return list.slice(start, end);
     },
 
     updateFilterBy(value) {
@@ -208,13 +258,14 @@ export default {
     async filter() {
       const value = this.filterInput;
       const by    = this.filterByText.toLocaleLowerCase();
-      let type    = this.typeText === 'Default' ? 'default' : 'priority';
 
       const MailDTO = {
         sender: this.$root.sender,
-        type: type,
+        type: "default",
         value: value,
         by: by,
+        receivers: [],
+        attachment: [],
       };
 
       fetch('http://localhost:8080/filter', {
@@ -230,10 +281,9 @@ export default {
       this.Default = value === 'Default';
       this.Priority = value === 'Priority';
     },
+
     async deleteSelectedItems() {
-      const selectedDefaultItems = this.defaultList.filter(email => email.isSelected);
-      const selectedPriorityItems = this.priorityList.filter(email => email.isSelected);
-      const selectedItems = selectedDefaultItems.concat(selectedPriorityItems);
+      const selectedItems = this.defaultList.filter(email => email.isSelected);
       
       for (const selectedItem of selectedItems) {
         const MailDTO = {
@@ -244,6 +294,7 @@ export default {
           importance: selectedItem.importance,
           subject: selectedItem.subject,
           body: selectedItem.body,
+          attachment: selectedItem.attachment ? selectedItem.attachment : [],
         };
 
         try {
@@ -262,68 +313,36 @@ export default {
       }
 
       this.defaultList = this.defaultList.filter(email => !email.isSelected);
-      this.priorityList = this.priorityList.filter(email => !email.isSelected);
+      
+      this.priorityList = this.priorityList.filter(email => !email.isSelected) ;
     },
-    async deleteSelectedPriorityItems() {
-      const selectedItems = this.priorityList.filter(email => email.isSelected);
 
-      for (const selectedItem of selectedItems) {
-        const MailDTO = {
-          id: selectedItem.id,
-          date: selectedItem.date,
-          sender: selectedItem.sender,
-          receivers: selectedItem.receivers,
-          importance: selectedItem.importance,
-          subject: selectedItem.subject,
-          body: selectedItem.body,
-        };
-
-        try {
-          const response = await fetch('http://localhost:8080/deletePriority', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(MailDTO),
-          });
-
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-        } catch (error) {
-          console.error('Error during fetch:', error);
-        }
-      }
-
-      this.priorityList = this.priorityList.filter(email => !email.isSelected);
-    },
     reload() {
-      const MailDTO1 = {
-        sender : this.$root.sender,
-        type   : "default",
-      };
+  const MailDTO = {
+    sender: this.$root.sender,
+    type: "default",
+    receivers: [],
+    attachment: [],
+  };
 
-      fetch('http://localhost:8080/showMails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(MailDTO1),
-      })
-        .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`))
-        .then(data => this.defaultList = Array.from(data))
-        .catch(error => console.error('Error:', error.message));
+  fetch('http://localhost:8080/showMails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(MailDTO),
+  })
+    .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`))
+    .then(data => {
+      this.defaultList = Array.from(data);
 
-      const MailDTO2 = {
-        sender : this.$root.sender, 
-        type   : "priority",
-      };
+      // Create a copy of defaultList for priorityList
+      this.priorityList = [...this.defaultList];
 
-      fetch('http://localhost:8080/showMails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(MailDTO2),
-      })
-        .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`))
-        .then(data => this.priorityList = Array.from(data))
-        .catch(error => console.error('Error:', error.message));
-    },
+      // Sort only the priorityList
+      this.priorityList.sort((a, b) => String(a.importance).localeCompare(String(b.importance)));
+    })
+    .catch(error => console.error('Error:', error.message));
+},
+
   },
 };
 </script>
@@ -433,6 +452,22 @@ export default {
     bottom: 0;
     right: 0;
     margin: 5px;
+  }
+
+  .pagination {
+    position: fixed;
+    top: 87% ;
+    left: 47% ;
+  }
+
+  .pagination button {
+    padding: 8px 12px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+
+  .pagination button:disabled {
+    cursor: not-allowed;
   }
 
 </style>
